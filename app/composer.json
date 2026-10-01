@@ -1,0 +1,15 @@
+{
+    "name": "fhooe/mdb3",
+    "description": "Moderne Datenbanken WS 2026/27 - course starter",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "mongodb/mongodb": "^2.1",
+        "elasticsearch/elasticsearch": "^9.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

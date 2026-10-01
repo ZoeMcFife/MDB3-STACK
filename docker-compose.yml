@@ -1,0 +1,176 @@
+# Moderne Datenbanken (MDB3) WS 2026/27 - course stack
+#
+#   docker compose up -d                       MongoDB (replica set), CockroachDB single node,
+#                                              Elasticsearch, Kibana, PHP
+#   docker compose --profile cluster up -d     the same, but a three-node CockroachDB cluster
+#                                              instead of the single node (NewSQL II, A03 task 4)
+#   docker compose --profile cluster down -v   reset everything (also restarts the 7-day
+#                                              licence grace period of a fresh cluster)
+#
+# Ports on your machine:
+#   27017  MongoDB      (Compass: mongodb://localhost:27017/?directConnection=true; MONGO_PORT=27018 docker compose up -d if 27017 is taken)
+#   26257  CockroachDB  SQL (psql/PDO: host=localhost port=26257 user=root, no password)
+#   8085   CockroachDB  DB Console (8086, 8087 for cluster nodes 2 and 3)
+#   9200   Elasticsearch
+#   5601   Kibana (Dev Tools under Management > Dev Tools)
+#   8084   PHP/Apache   serving ./app
+#
+# Inside the PHP container the hosts are: mongodb, cockroach1, elasticsearch.
+
+services:
+
+  # ---------------------------------------------------------------- MongoDB
+  mongodb:
+    image: mongo:8.2
+    container_name: mongodb
+    command: mongod --replSet rs0 --bind_ip_all
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: mongosh --quiet --eval "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  mongo-init:
+    image: mongo:8.2
+    container_name: mongo-init
+    entrypoint: ["bash", "/scripts/init-replicaset.sh"]
+    volumes:
+      - ./scripts/init-replicaset.sh:/scripts/init-replicaset.sh:ro
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+
+  # ---------------------------------------------------------------- CockroachDB (single node, default)
+  cockroach1:
+    image: cockroachdb/cockroach:latest-v26.2
+    container_name: cockroach1
+    command: start-single-node --insecure --http-addr=0.0.0.0:8080
+    ports:
+      - "26257:26257"
+      - "8085:8080"
+    volumes:
+      - crdb1:/cockroach/cockroach-data
+    healthcheck:
+      test: ["CMD", "cockroach", "sql", "--insecure", "--host=localhost:26257", "-e", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    profiles: ["", "single"]
+
+  # ---------------------------------------------------------------- CockroachDB (three nodes, --profile cluster)
+  cockroach-node1:
+    image: cockroachdb/cockroach:latest-v26.2
+    container_name: cockroach-node1
+    hostname: cockroach1
+    command: start --insecure --join=cockroach1,cockroach2,cockroach3 --advertise-addr=cockroach1 --http-addr=0.0.0.0:8080
+    ports:
+      - "26257:26257"
+      - "8085:8080"
+    volumes:
+      - crdbc1:/cockroach/cockroach-data
+    profiles: ["cluster"]
+
+  cockroach-node2:
+    image: cockroachdb/cockroach:latest-v26.2
+    container_name: cockroach-node2
+    hostname: cockroach2
+    command: start --insecure --join=cockroach1,cockroach2,cockroach3 --advertise-addr=cockroach2 --http-addr=0.0.0.0:8080
+    ports:
+      - "26258:26257"
+      - "8086:8080"
+    volumes:
+      - crdbc2:/cockroach/cockroach-data
+    profiles: ["cluster"]
+
+  cockroach-node3:
+    image: cockroachdb/cockroach:latest-v26.2
+    container_name: cockroach-node3
+    hostname: cockroach3
+    command: start --insecure --join=cockroach1,cockroach2,cockroach3 --advertise-addr=cockroach3 --http-addr=0.0.0.0:8080
+    ports:
+      - "26259:26257"
+      - "8087:8080"
+    volumes:
+      - crdbc3:/cockroach/cockroach-data
+    profiles: ["cluster"]
+
+  cockroach-init:
+    image: cockroachdb/cockroach:latest-v26.2
+    container_name: cockroach-init
+    entrypoint: ["bash", "/scripts/init-cockroach.sh"]
+    volumes:
+      - ./scripts/init-cockroach.sh:/scripts/init-cockroach.sh:ro
+    depends_on:
+      - cockroach-node1
+      - cockroach-node2
+      - cockroach-node3
+    restart: "no"
+    profiles: ["cluster"]
+
+  # ---------------------------------------------------------------- Elasticsearch + Kibana
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.1.4
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- PHP
+  php:
+    build: ./php
+    image: mdb3-php:ws26
+    container_name: mdb3-php
+    ports:
+      - "8084:80"
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mongodata:
+  crdb1:
+  crdbc1:
+  crdbc2:
+  crdbc3:
+  esdata:
+
+networks:
+  default:
+    name: mdb3net
