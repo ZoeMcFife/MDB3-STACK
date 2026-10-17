@@ -18,12 +18,17 @@ $island1 = $islandDAO->create("Zoe's Bizarre Island", "Zoe McFife", "north", "St
 $island2 = $islandDAO->create("Blerg Islands", "Blerg", "south");
 $island3 = $islandDAO->create("Snow", "Kirsikka Lumikettu", "north", "Pancake");
 
+echo "Islands: \n";
+
 var_dump($islandDAO->findById($island1));
 var_dump($islandDAO->findById($island2));
 var_dump($islandDAO->findById($island3));
 
+echo "\n";
 
 // adding villagers
+
+echo "Adding Villagers: \n\n";
 
 echo $islandDAO->moveIn("Zoe's Bizarre Island", 13, "Ankha") . "\n";
 echo $islandDAO->moveIn("Zoe's Bizarre Island", 20, "Audie"). "\n";
@@ -37,16 +42,21 @@ echo $islandDAO->moveIn("Zoe's Bizarre Island", 93, "Coco"). "\n";
 echo $islandDAO->moveIn("Zoe's Bizarre Island", 106, "Daisy"). "\n";
 echo $islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana"). "\n";
 
+echo "expecting - false two times: \n";
 echo ($islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana")). "\n"; // duplicate
 echo ($islandDAO->moveIn("Zoe's Bizarre Island", 36, "Bertha")). "\n"; // sorry Bertha, we're full
 
 
 // removing villagers
 
+echo "Removing villager: \n";
 echo $islandDAO->moveOut("Zoe's Bizarre Island", 48). "\n";
 
+echo "all villagers: \n\n";
 
 var_dump(($islandDAO->findByName("Zoe's Bizarre Island")->residents));
+
+echo "\n";
 
 // adding items
 
@@ -54,7 +64,11 @@ $islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
 $islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
 $islandDAO->addToInventory("Zoe's Bizarre Island", 4672, "curly moustache", 1);
 
+echo "Inventory: cat nose -> 48 ; moustache -> 1\n\n";
+
 var_dump(($islandDAO->findByName("Zoe's Bizarre Island")->inventory));
+
+echo "\n";
 
 // visits
 
@@ -82,10 +96,16 @@ $visits = [
     ["William Storm",             '2026-10-17 03:00'],
 ];
 
+echo "Visits: \n \n";
+
 foreach ($visits as [$player, $time])
 {
     $at = new UTCDateTime(new DateTimeImmutable($time, new DateTimeZone('UTC')));
     echo $visitDAO->record($island1, $player, $at). "\n";
 }
+
+echo "\n";
+
+echo "visit vardump: \n\n";
 
 var_dump($visitDAO->latest($island1, 20));
