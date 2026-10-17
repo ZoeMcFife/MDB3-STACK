@@ -34,6 +34,6 @@ class VisitDao
                 'sort' => ['visitTime' => -1],
                 'limit' => $n
             ]
-        );
+        )->toArray();
     }
 }

@@ -18,42 +18,43 @@ $island1 = $islandDAO->create("Zoe's Bizarre Island", "Zoe McFife", "north", "St
 $island2 = $islandDAO->create("Blerg Islands", "Blerg", "south");
 $island3 = $islandDAO->create("Snow", "Kirsikka Lumikettu", "north", "Pancake");
 
-echo $islandDAO->findById($island1);
-echo $islandDAO->findById($island2);
-echo $islandDAO->findById($island3);
+var_dump($islandDAO->findById($island1));
+var_dump($islandDAO->findById($island2));
+var_dump($islandDAO->findById($island3));
+
 
 // adding villagers
 
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 13, "Ankha");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 20, "Audie");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 1, "Admiral");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 3, "Agnes");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 17, "Apollo");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 33, "Bella");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 48, "Bob");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 89, "Cleo");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 93, "Coco");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 106, "Daisy");
-echo $islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana");
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 13, "Ankha") . "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 20, "Audie"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 1, "Admiral"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 3, "Agnes"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 17, "Apollo"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 33, "Bella"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 48, "Bob"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 89, "Cleo"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 93, "Coco"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 106, "Daisy"). "\n";
+echo $islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana"). "\n";
 
-echo ($islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana")); // duplicate
-echo ($islandDAO->moveIn("Zoe's Bizarre Island", 36, "Bertha")); // sorry Bertha, we're full
+echo ($islandDAO->moveIn("Zoe's Bizarre Island", 112, "Diana")). "\n"; // duplicate
+echo ($islandDAO->moveIn("Zoe's Bizarre Island", 36, "Bertha")). "\n"; // sorry Bertha, we're full
 
 
 // removing villagers
 
-echo $islandDAO->moveOut("Zoe's Bizarre Island", 48);
+echo $islandDAO->moveOut("Zoe's Bizarre Island", 48). "\n";
 
 
-echo ($islandDAO->findByName("Zoe's Bizarre Island")->residents);
+var_dump(($islandDAO->findByName("Zoe's Bizarre Island")->residents));
 
 // adding items
 
-echo $islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
-echo $islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
-echo $islandDAO->addToInventory("Zoe's Bizarre Island", 4672, "curly moustache", 1);
+$islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
+$islandDAO->addToInventory("Zoe's Bizarre Island", 4483, "cat nose", 24);
+$islandDAO->addToInventory("Zoe's Bizarre Island", 4672, "curly moustache", 1);
 
-echo ($islandDAO->findByName("Zoe's Bizarre Island")->items);
+var_dump(($islandDAO->findByName("Zoe's Bizarre Island")->inventory));
 
 // visits
 
@@ -84,7 +85,7 @@ $visits = [
 foreach ($visits as [$player, $time])
 {
     $at = new UTCDateTime(new DateTimeImmutable($time, new DateTimeZone('UTC')));
-    echo $visitDAO->record($island1, $player, $at);
+    echo $visitDAO->record($island1, $player, $at). "\n";
 }
 
-echo $visitDAO->latest($island1, 20);
+var_dump($visitDAO->latest($island1, 20));

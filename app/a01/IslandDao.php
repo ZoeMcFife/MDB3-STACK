@@ -21,7 +21,7 @@ class IslandDao
 
         $island =
             [
-                'name' => $name,
+                'islandName' => $name,
                 'owner' => $owner,
                 'hemisphere' => $hemisphere,
                 'creationDate' => new UTCDateTime(),
@@ -44,7 +44,7 @@ class IslandDao
 
     public function findByName(string $name) : ?object
     {
-        return $this->islands->findOne(['name' => $name]);
+        return $this->islands->findOne(['islandName' => $name]);
     }
 
     public function findByResident(string $residentName) : Array
@@ -57,7 +57,7 @@ class IslandDao
         $result = $this->islands->updateOne
         (
             [
-                'name' => $name,
+                'islandName' => $name,
                 'residents' => ['$ne' => $villagerId],
                 'residents.' . (self::MAX_RESIDENTS - 1) => ['$exists' => false]
             ],
@@ -74,7 +74,7 @@ class IslandDao
         $result = $this->islands->updateOne
         (
             [
-                'name' => $name
+                'islandName' => $name
             ],
             [
                 '$pull' => ['residents' => ['villagerId' => $villagerId]],
@@ -94,7 +94,7 @@ class IslandDao
         $updated = $this->islands->updateOne
         (
             [
-                'name' => $name,
+                'islandName' => $name,
                 'itemId' => $itemId,
             ],
             [
@@ -107,7 +107,7 @@ class IslandDao
             $this->islands->updateOne
             (
                 [
-                    'name' => $name
+                    'islandName' => $name
                 ],
                 [
                     '$push' => ['inventory' => ['itemId' => $itemId, 'itemName' => $itemName, 'count' => $count]],
@@ -124,7 +124,7 @@ class IslandDao
         $result = $this->islands->updateOne
         (
             [
-                'name' => $old
+                'islandName' => $old
             ],
             [
                 '$rename' => ['name' => $new]
@@ -139,7 +139,7 @@ class IslandDao
         $result = $this->islands->deleteOne
         (
             [
-                'name' => $name
+                'islandName' => $name
             ]
         );
 
