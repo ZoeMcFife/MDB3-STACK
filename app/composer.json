@@ -5,7 +5,8 @@
     "require": {
         "php": ">=8.2",
         "mongodb/mongodb": "^2.1",
-        "elasticsearch/elasticsearch": "^9.0"
+        "elasticsearch/elasticsearch": "^9.0",
+      "ext-mongodb": "*"
     },
     "config": {
         "allow-plugins": {
