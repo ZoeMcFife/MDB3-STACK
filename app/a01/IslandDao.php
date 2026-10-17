@@ -62,7 +62,7 @@ class IslandDao
                 'residents.' . (self::MAX_RESIDENTS - 1) => ['$exists' => false]
             ],
             [
-                '$push' => ['residents' => ['villagerName' => $villagerName], 'villagerId' => $villagerId],
+                '$push' => ['residents' => ['villagerName' => $villagerName, 'villagerId' => $villagerId]],
             ]
         );
 
@@ -95,7 +95,7 @@ class IslandDao
         (
             [
                 'islandName' => $name,
-                'itemId' => $itemId,
+                'inventory.itemId' => $itemId,
             ],
             [
                 '$inc' => ['inventory.$.count' => $count],
