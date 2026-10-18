@@ -315,7 +315,7 @@ usort($slots, fn($a, $b) => $a[1] <=> $b[1]);
 
 foreach ($slots as [$islandName, $ts, $player]) {
     $at = new UTCDateTime(new DateTimeImmutable("@$ts"));
-    $visitDAO->record($created[$islandName], $player, $at);
+    $visitDAO->record($created[$islandName], $islandName, $player, $at);
 }
 
 echo "\n  " . count($slots) . " visits recorded\n\n";

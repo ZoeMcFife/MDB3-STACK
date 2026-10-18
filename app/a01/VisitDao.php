@@ -8,11 +8,12 @@ class VisitDao
 {
     public function __construct(private readonly Collection $visits) {}
 
-    public function record(ObjectId $islandId, string $visitor, UTCDateTime $visitTime) : ObjectId
+    public function record(ObjectId $islandId, string $islandName, string $visitor, UTCDateTime $visitTime) : ObjectId
     {
         $visit =
             [
                 'visitor' => $visitor,
+                'islandName' => $islandName,
                 'islandId' => $islandId,
                 'visitTime' => $visitTime,
             ];
