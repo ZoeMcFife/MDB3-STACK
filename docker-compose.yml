@@ -57,6 +57,7 @@ services:
       - "8085:8080"
     volumes:
       - crdb1:/cockroach/cockroach-data
+      - ./app/sessions/s4:/cockroach/cockroach-data/extern/s4:ro
     healthcheck:
       test: ["CMD", "cockroach", "sql", "--insecure", "--host=localhost:26257", "-e", "SELECT 1"]
       interval: 10s
@@ -77,6 +78,7 @@ services:
       - "8085:8080"
     volumes:
       - crdbc1:/cockroach/cockroach-data
+      - ./app/sessions/s4:/cockroach/cockroach-data/extern/s4:ro
     profiles: ["cluster"]
 
   cockroach-node2:
